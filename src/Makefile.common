@@ -1,0 +1,67 @@
+ifndef MAKEFILE_COMMON
+define MAKEFILE_COMMON
+endef
+
+CC = g++
+LD = g++
+
+build_dir = build
+obj_dir = $(build_dir)/objects
+bin_dir = $(build_dir)/bin
+depends_dir = $(build_dir)/depends
+
+vpath %.cc ../lexer:../symbol:../
+vpath %.c  ../lexer:../symbol:../
+vpath %.h  ../lexer:../symbol:../
+
+CFLAGS = -g -Wall -Wshadow -std=c++17 $(INCPATH) $(DEFINES)
+
+c_ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
+cc_ofiles = $(CCFILES:%.cc=$(obj_dir)/%.o)
+
+ofiles = $(c_ofiles) $(cc_ofiles)
+
+program = program
+$(bin_dir)/$(program): $(ofiles)
+
+$(bin_dir)/% :
+	@echo ">>> Linking" $@ "<<<"
+	@if [ ! -d $(bin_dir) ]; then mkdir -p $(bin_dir); fi;
+	$(LD) $^ $(LDFLAGS) -o $@
+	ln -sf $@ $(notdir $@)
+
+$(obj_dir)/%.o: %.c
+	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(obj_dir)/%.o: %.cc
+	@echo ">>> Compiling" $< "<<<"
+	@if [ ! -d $(obj_dir) ]; then mkdir -p $(obj_dir); fi;
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+c_dfiles = $(CFILES:%.c=$(depends_dir)/%.d)
+cc_dfiles = $(CCFILES:%.cc=$(depends_dir)/%.d)
+
+dfiles = $(cc_dfiles) $(c_dfiles)
+
+$(depends_dir)/%.d: %.c
+	@echo ">>> Building dependency file for" $< "<<<"
+	@if [ ! -d $(depends_dir) ]; then mkdir -p $(depends_dir); fi;
+	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \
+	| sed '\''s@$*.o[ ]*:@$(depends_dir)/$(notdir $@) $(obj_dir)/&@g'\'' > $@'
+
+$(depends_dir)/%.d: %.cc
+	@echo ">>> Building dependency file for " $< "<<<"
+	@if [ ! -d $(depends_dir) ]; then mkdir -p $(depends_dir); fi;
+	@$(SHELL) -ec '$(CC) -MM $(CFLAGS) $< \
+	| sed '\''s@$*.o[ ]*:@$(depends_dir)/$(notdir $@) $(obj_dir)/&@g'\'' > $@'
+
+include $(dfiles)
+
+.PHONY: clean
+clean:
+	rm -rf $(build_dir)
+	rm -f $(program)
+
+endif # MAKEFILE_COMMON
