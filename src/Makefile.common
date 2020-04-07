@@ -21,7 +21,7 @@ cc_ofiles = $(CCFILES:%.cc=$(obj_dir)/%.o)
 
 ofiles = $(c_ofiles) $(cc_ofiles)
 
-program = program
+program = pl0
 $(bin_dir)/$(program): $(ofiles)
 
 $(bin_dir)/% :

@@ -1,12 +1,27 @@
 #include <fstream>
 #include "lex.h"
 
-int main() {
-    std::ifstream fin("../../test/code.pl0");
-    LexAnalyzer* lex = new LexAnalyzer(fin);
+std::ifstream fin;
+LexAnalyzer* lex;
+
+void Halt(int code=0) {
+    delete lex;
+    if(fin.is_open())   fin.close();
+    if(code)    std::cerr << "pl0: exit with code " << code << std::endl;
+    exit(code);
+}
+
+int main(int argc, char *argv[]) {
+    if(argc != 2) {
+        std::cerr << "Usage: pl0 <src>" << std::endl;
+        return 0;
+    }
+    
+    fin.open(argv[1]);
+    lex = new LexAnalyzer(fin);
     lex->Symbolize();
     lex->ListSymbols();
-    delete lex;
-    fin.close();
+
+    Halt();
     return 0;
 }

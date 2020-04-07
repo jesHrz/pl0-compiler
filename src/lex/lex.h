@@ -12,9 +12,10 @@ public:
     ~LexAnalyzer() {};
 
     void Symbolize();
-    int PutSymbol(Symbol* sym);
+    int AppendSymbol(Symbol* sym);
+    int PrependSymbol(Symbol* sym);
     Symbol* GetSymbol();
-    void ListSymbols();
+    void ListSymbols(std::ostream& out=std::cout);
 
 protected:
     std::istream& in;

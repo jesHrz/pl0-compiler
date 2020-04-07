@@ -1,11 +1,12 @@
 #include "lex.h"
+
+#include <iomanip>
 #include "symbol.h"
 
 void LexAnalyzer::Symbolize() {
-    Symbol* sym = nullptr;
-    std::string val;
-    bool atEOF = false;
     char cur;
+    std::string val;
+    Symbol* sym = nullptr;
     while((cur = NextChar()) != EOF) {
         if(cur == '\n') {
             NextLine();
@@ -14,45 +15,50 @@ void LexAnalyzer::Symbolize() {
         if(isspace(cur)) {
             continue;
         }
+        val.clear();
         if(isdigit(cur)) {
-            val.clear();
-            atEOF = false;
-            do {
+            while(true) {
                 val += cur;
                 if((cur = NextChar()) == EOF) {
-                    atEOF = true;
                     break;
                 }
-            } while(isdigit(cur));
-            if(!atEOF)  PutBack(cur);
+                if(!isdigit(cur)) {
+                    PutBack(cur);
+                    break;
+                }
+            }
             sym = new Sym_Number(line, offset - val.length(), val);
         } else if(isalpha(cur)) {
-            val.clear();
-            atEOF = false;
-            do {
+            while(true) {
                 val += cur;
                 if((cur = NextChar()) == EOF) {
-                    atEOF = true;
                     break;
                 }
-            } while(isalnum(cur));
-            if(!atEOF)  PutBack(cur);
+                if(!isalnum(cur)) {
+                    PutBack(cur);
+                    break;
+                }
+            }
             sym = new Sym_Word(line, offset - val.length(), val);
         } else {
-            val.clear();
             val += cur;
-            if((cur == ':' || cur == '<' || cur == '>') && !in.eof()) {
+            if((cur == ':' || cur == '<' || cur == '>')) {
                 if((cur = NextChar()) == '=')   val += cur;
                 else PutBack(cur);
             }
             sym = new Sym_Operator(line, offset - val.length(), val);
         }
-        PutSymbol(sym);
+        AppendSymbol(sym);
     }
 }
 
-int LexAnalyzer::PutSymbol(Symbol* sym) {
+int LexAnalyzer::AppendSymbol(Symbol* sym) {
     list.push_back(sym);
+    return (int)list.size();
+}
+
+int LexAnalyzer::PrependSymbol(Symbol* sym) {
+    list.push_front(sym);
     return (int)list.size();
 }
 
@@ -62,8 +68,15 @@ Symbol* LexAnalyzer::GetSymbol() {
     return sym;
 }
 
-void LexAnalyzer::ListSymbols() {
-    for(Symbol* sym:list)   sym->Print();
+void LexAnalyzer::ListSymbols(std::ostream&out) {
+    out.setf(std::ios::right);
+    out << std::endl 
+        << std::setw(9) << "SYMVALUE"
+        << "\t[SYMTAG:LINE:OFFSET]" 
+        << std::endl;
+    out << "------------------------------------------------------------" << std::endl;
+    for(Symbol* sym:list)   sym->Print(out);
+    out << "------------------------------------------------------------" << std::endl;
 }
 
 void LexAnalyzer::NextLine() {
