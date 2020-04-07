@@ -1,10 +1,9 @@
 #ifndef __SYM_NUMBER_H_
 #define __SYM_NUMBER_H_
 
-#include <cmath>
-#include <sstream>
 
 #include "symbol.h"
+#include <cmath>
 
 #define number_t int
 #define MAX_NUMBER_POW int(ceil(log(std::numeric_limits<number_t>::max())/log(10)))

@@ -1,5 +1,9 @@
 #include "operator.h"
-#include "symtable.h"
+
+
+const std::string _operatorName[NUM_OP] {
+    "+", "-", "*", "/", "=", "#", "<", "<=", ">", ">=", "(", ")", ",", ";", ":=",
+};
 
 Sym_Operator::Sym_Operator(int line, int offset, std::string val): Symbol(Sym_Operator::GetOperatorSymbolTag(val), line, offset, val) {}
 Sym_Operator::~Sym_Operator() {}

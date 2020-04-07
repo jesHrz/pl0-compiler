@@ -2,6 +2,7 @@
 #define __SYM_OPERATOR_H_
 
 #include "symbol.h"
+#define NUM_OP 15
 
 class Sym_Operator: public Symbol {
 public:

@@ -1,7 +1,7 @@
 #include "number.h"
 
 #include <iomanip>
-#include "symtable.h"
+#include <sstream>
 
 extern void Halt(int code);
 

@@ -2,6 +2,7 @@
 #define __SYM_KEYWORD_H_
 
 #include "symbol.h"
+#define NUM_KEYWORD 13
 
 class Sym_Word: public Symbol {
 public:

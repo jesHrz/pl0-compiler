@@ -14,7 +14,7 @@ vpath %.cc ../lexer:../symbol:../
 vpath %.c  ../lexer:../symbol:../
 vpath %.h  ../lexer:../symbol:../
 
-CFLAGS = -g -Wall -Wshadow -std=c++17 $(INCPATH) $(DEFINES)
+CFLAGS = -g -Wall -Wshadow -std=c++11 $(INCPATH) $(DEFINES)
 
 c_ofiles = $(CFILES:%.c=$(obj_dir)/%.o)
 cc_ofiles = $(CCFILES:%.cc=$(obj_dir)/%.o)

@@ -1,5 +1,10 @@
 #include "word.h"
-#include "symtable.h"
+
+
+const std::string _keyWordName[NUM_KEYWORD] = {
+    "const", "var",  "procedure", "begin", "end",  "odd",   "if",
+    "then",  "call", "while",     "do",    "read", "write",
+};
 
 Sym_Word::Sym_Word(int line, int offset, std::string val): Symbol(Sym_Word::GetWordSymbolTag(val), line, offset, val) {};
 Sym_Word::~Sym_Word() {};
@@ -12,3 +17,4 @@ sym_t Sym_Word::GetWordSymbolTag(std::string word)  {
     }
     return SYM_IDENT;
 }
+
