@@ -2,8 +2,6 @@
 
 ## Lexer
 
-<img src="/Users/jeshrz/Library/Application Support/typora-user-images/image-20200229103322729.png" alt="image-20200229103322729" style="zoom:50%;" />
-
 |  类型  |                            字符串                            |
 | :----: | :----------------------------------------------------------: |
 | 关键字 | const, var, procedure, begin, end, odd, if, then, call, while, do, read, write |
