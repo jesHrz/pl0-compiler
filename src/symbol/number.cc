@@ -24,7 +24,7 @@ Sym_Number::~Sym_Number() {}
 
 void Sym_Number::Print(std::ostream& out) const {
     out.setf(std::ios::right);
-    out << std::setw(9) << this->value
+    out << std::setw(10) << this->value
         << "\t["
         << _symbolName[this->symbolTag]
         << ":"

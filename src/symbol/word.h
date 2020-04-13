@@ -3,6 +3,7 @@
 
 #include "symbol.h"
 #define NUM_KEYWORD 13
+#define MAX_KEYWORD_LEN 10
 
 class Sym_Word: public Symbol {
 public:

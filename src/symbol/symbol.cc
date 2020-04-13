@@ -59,7 +59,7 @@ std::string Symbol::GetSymbolValue()    const { return symbolVal; };
 
 void Symbol::Print(std::ostream& out) const {
     out.setf(std::ios::right);
-    out << std::setw(9) << this->symbolVal
+    out << std::setw(10) << this->symbolVal
         << "\t["
         << _symbolName[this->symbolTag]
         << ":"

@@ -69,14 +69,19 @@ Symbol* LexAnalyzer::GetSymbol() {
 }
 
 void LexAnalyzer::ListSymbols(std::ostream&out) {
+    int _id = 0;
     out.setf(std::ios::right);
     out << std::endl 
-        << std::setw(9) << "SYMVALUE"
+        << std::setw(5) << "ATTR"
+        << std::setw(10) << "SYMVALUE"
         << "\t[SYMTAG:LINE:OFFSET]" 
         << std::endl;
-    out << "------------------------------------------------------------" << std::endl;
-    for(Symbol* sym:list)   sym->Print(out);
-    out << "------------------------------------------------------------" << std::endl;
+    out << "------------------------------------------" << std::endl;
+    for(Symbol* sym:list) {
+        out << std::setw(5) << _id++; 
+        sym->Print(out);
+    }
+    out << "------------------------------------------" << std::endl;
 }
 
 void LexAnalyzer::NextLine() {

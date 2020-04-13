@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include "lex.h"
 
@@ -23,5 +24,4 @@ int main(int argc, char *argv[]) {
     lex->ListSymbols();
 
     Halt();
-    return 0;
 }
