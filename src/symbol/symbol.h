@@ -6,7 +6,7 @@
 
 
 #define sym_t unsigned int
-#define NUM_SYM 31
+#define NUM_SYM 32
 
 enum SymbolTable {
     SYM_NUL,        // 空
@@ -30,6 +30,7 @@ enum SymbolTable {
     SYM_COMMA,      // ,
     SYM_SEMICOLON,  // ;
     SYM_BECOMES,    // :=
+    SYM_PERIOD,     // .
     // keyword
     SYM_CONST,      // const
     SYM_VAR,        // var

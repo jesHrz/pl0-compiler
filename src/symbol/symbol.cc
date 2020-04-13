@@ -24,6 +24,7 @@ const sym_t _symbolMap[NUM_SYM] = {
     SYM_COMMA,      // ,
     SYM_SEMICOLON,  // ;
     SYM_BECOMES,    // :=
+    SYM_PERIOD,     // .
     // keyword
     SYM_CONST,      // const
     SYM_VAR,        // var
@@ -40,13 +41,13 @@ const sym_t _symbolMap[NUM_SYM] = {
     SYS_WRITE,      // write
 };
 const std::string _symbolName[NUM_SYM] = {
-    "SYM_NUL",       "SYM_IDENT",     "SYM_NUMBER",  "SYM_PLUS",   "SYM_MINUS",
-    "SYM_TIMES",     "SYM_SLASH",     "SYM_EQL",     "SYM_NEQ",    "SYM_LSS",
-    "SYM_LEQ",       "SYM_GTR",       "SYM_GEQ",     "SYM_LPAREN", "SYM_RPAREN",
-    "SYM_COMMA",     "SYM_SEMICOLON", "SYM_BECOMES", "SYN_CONST",  "SYN_VAR",
-    "SYM_PROCEDURE", "SYM_BEGIN",     "SYM_END",     "SYM_ODD",    "SYM_IF",
-    "SYM_THEN",      "SYM_CALL",      "SYM_WHILE",   "SYM_DO",     "SYM_READ",
-    "SYM_WRITE",
+    "SYM_NUL",       "SYM_IDENT",     "SYM_NUMBER",  "SYM_PLUS",    "SYM_MINUS",
+    "SYM_TIMES",     "SYM_SLASH",     "SYM_EQL",     "SYM_NEQ",     "SYM_LSS",
+    "SYM_LEQ",       "SYM_GTR",       "SYM_GEQ",     "SYM_LPAREN",  "SYM_RPAREN",
+    "SYM_COMMA",     "SYM_SEMICOLON", "SYM_BECOMES", "SYM_PERIOD",  "SYN_CONST",
+    "SYN_VAR",       "SYM_PROCEDURE", "SYM_BEGIN",   "SYM_END",     "SYM_ODD",
+    "SYM_IF",        "SYM_THEN",      "SYM_CALL",    "SYM_WHILE",   "SYM_DO",     
+    "SYM_READ",      "SYM_WRITE",
 };
 
 Symbol::Symbol(sym_t symbolTag, int line, int offset, std::string val): symbolTag(symbolTag), line(line), offset(offset), symbolVal(val) {}

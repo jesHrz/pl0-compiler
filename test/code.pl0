@@ -1,16 +1,15 @@
-var x, squ;
-
-procedure square;
+const a=10;
+var b,c;
+procedure p;
 begin
-   squ:= x * x
+  c:=b+a
 end;
-
 begin
-   x := 1;
-   while x <= 10 do
-   begin
-      call square;
-      write(squ);
-      x := x + 1
-   end
+  read(b);
+  while b<>0 do
+    begin
+      call  p;
+      write(2*c);
+      read(b);
+     end
 end.
