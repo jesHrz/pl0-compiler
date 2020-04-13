@@ -5,8 +5,7 @@
 #include "symbol.h"
 #include <cmath>
 
-#define number_t int
-#define MAX_NUMBER_POW int(ceil(log(std::numeric_limits<number_t>::max())/log(10)))
+#define MAX_NUMBER_POW int(ceil(log(std::numeric_limits<num_t>::max())/log(10)))
 
 class Sym_Number: public Symbol {
 public:
@@ -14,10 +13,6 @@ public:
     ~Sym_Number();
 
     void Print(std::ostream& out) const;
-
-    number_t GetNumber() const;
-protected:
-    number_t value;
 
 private:
     Sym_Number(const Sym_Number& t) = delete;

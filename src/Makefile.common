@@ -10,9 +10,9 @@ obj_dir = $(build_dir)/objects
 bin_dir = $(build_dir)/bin
 depends_dir = $(build_dir)/depends
 
-vpath %.cc ../lexer:../symbol:../
-vpath %.c  ../lexer:../symbol:../
-vpath %.h  ../lexer:../symbol:../
+vpath %.cc ../lex:../symbol:../grammar:../
+vpath %.c  ../lex:../symbol:../grammar:../
+vpath %.h  ../lex:../symbol:../grammar:../
 
 CFLAGS = -g -Wall -Wshadow -std=c++11 $(INCPATH) $(DEFINES)
 

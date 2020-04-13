@@ -38,7 +38,7 @@ const sym_t _symbolMap[NUM_SYM] = {
     SYM_WHILE,      // while
     SYM_DO,         // do
     SYM_READ,       // read
-    SYS_WRITE,      // write
+    SYM_WRITE,      // write
 };
 const std::string _symbolName[NUM_SYM] = {
     "SYM_NUL",       "SYM_IDENT",     "SYM_NUMBER",  "SYM_PLUS",    "SYM_MINUS",
@@ -57,6 +57,7 @@ sym_t       Symbol::GetSymbolTag()      const { return symbolTag; };
 int         Symbol::GetLine()           const { return line; };
 int         Symbol::GetOffset()         const { return offset; }
 std::string Symbol::GetSymbolValue()    const { return symbolVal; };
+num_t       Symbol::GetNumber()         const { return number; }
 
 void Symbol::Print(std::ostream& out) const {
     out.setf(std::ios::right);

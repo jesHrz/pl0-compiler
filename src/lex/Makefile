@@ -9,9 +9,9 @@ CCFILES = main.cc \
 		  symbol.cc \
 		  word.cc \
 
-INCPATH += -I../symbol
+INCPATH += -I../symbol -I../
 
-DEFINES += -DLEXER
+DEFINES += -DLEX
 
 include ../Makefile.common
 

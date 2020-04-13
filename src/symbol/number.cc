@@ -17,14 +17,14 @@ Sym_Number::Sym_Number(int line, int offset, std::string val): Symbol(SYM_NUMBER
         Halt(1);
     }
     std::istringstream tmp(val);
-    tmp >> this->value;
+    tmp >> this->number;
 }
 
 Sym_Number::~Sym_Number() {}
 
 void Sym_Number::Print(std::ostream& out) const {
     out.setf(std::ios::right);
-    out << std::setw(10) << this->value
+    out << std::setw(10) << this->number
         << "\t["
         << _symbolName[this->symbolTag]
         << ":"
@@ -34,4 +34,4 @@ void Sym_Number::Print(std::ostream& out) const {
         << "]" << std::endl;
 }
 
-number_t Sym_Number::GetNumber() const { return this->value; };
+// num_t Sym_Number::GetNumber() const { return this->value; };

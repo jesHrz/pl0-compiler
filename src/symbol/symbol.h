@@ -2,11 +2,10 @@
 #define __SYM_SYMBOL_H_
 
 #include <iostream>
-// #include "symtable.h"
-
 
 #define sym_t unsigned int
 #define NUM_SYM 32
+#define num_t int
 
 enum SymbolTable {
     SYM_NUL,        // 空
@@ -44,7 +43,7 @@ enum SymbolTable {
     SYM_WHILE,      // while
     SYM_DO,         // do
     SYM_READ,       // read
-    SYS_WRITE,      // write
+    SYM_WRITE,      // write
 };
 
 class Symbol {
@@ -56,6 +55,7 @@ public:
     int         GetLine()        const;
     int         GetOffset()      const;
     std::string GetSymbolValue() const;
+    num_t       GetNumber()      const;
 
     virtual void Print(std::ostream& out=std::cout) const;
 
@@ -64,6 +64,7 @@ protected:
     int line;
     int offset;
     std::string symbolVal;
+    num_t number;
 
 private:
     Symbol(const Symbol& t) = delete;
