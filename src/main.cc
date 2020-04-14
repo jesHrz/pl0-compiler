@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     fin.open(argv[1]);
+    // fin.open("/Users/jeshrz/Projects/pl0-compiler/test/code0.pl0");
     
     #ifdef LEX
     lex = new LexAnalyzer(fin);

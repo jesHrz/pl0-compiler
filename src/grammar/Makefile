@@ -9,6 +9,7 @@ CCFILES = main.cc \
 		  operator.cc \
 		  symbol.cc \
 		  word.cc \
+		  error.cc \
 
 INCPATH += -I../symbol -I../lex
 

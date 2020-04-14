@@ -18,11 +18,11 @@ enum KIND {
     PROC,
 };
 
-class Token {
+class Identifier {
 public:
-    Token(enum KIND kind=NIL, int level=-1, int addr=-1, num_t value=0): kind(kind), level(level), addr(addr), value(value) {}
-    Token(const Token& t): kind(t.kind), level(t.level), addr(t.addr), value(t.value) {}
-    Token& operator=(const Token& t) {
+    Identifier(enum KIND kind=NIL, int level=-1, int addr=-1, num_t value=0): kind(kind), level(level), addr(addr), value(value) {}
+    Identifier(const Identifier& t): kind(t.kind), level(t.level), addr(t.addr), value(t.value) {}
+    Identifier& operator=(const Identifier& t) {
         if(this == &t)  return *this;
         kind = t.kind;
         level = t.level;
@@ -43,6 +43,7 @@ public:
     ~GrammarAnalyzer();
 
     void Getsym();
+    void Retract();
 
     void Program();     // 程序
 
@@ -73,12 +74,12 @@ protected:
     
     int level;
     int* addr;
-    std::map<std::string, Token>* table;
+    std::map<std::string, Identifier>* table;
 private:
     GrammarAnalyzer(const GrammarAnalyzer&)=delete;
     GrammarAnalyzer& operator=(const GrammarAnalyzer&) const = delete;
 
-    Token* FindToken(std::string name) {
+    Identifier* FindIdentifier(std::string name) {
         for(int i = level; i >= 0; --i) {
             if(table[i].count(name))    return &table[i][name];
         }
