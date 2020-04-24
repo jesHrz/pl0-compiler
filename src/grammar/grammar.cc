@@ -50,6 +50,7 @@ void GrammarAnalyzer::Block() {
         Error("Too many recursions, abort.");
     }
     addr[level] += 3;
+    table[level].clear();
     Decls();
     Stmts();
 }
@@ -149,7 +150,7 @@ void GrammarAnalyzer::ProcDecl() {
         if(table[level].count(procName)) {
             Error(sym, "redefined identifier");
         }
-        table[level][sym->GetSymbolValue()] = Identifier(PROC, level, addr[level]++, 0);
+        table[level][procName] = Identifier(PROC, level, addr[level]++, 0);
         Getsym();
         if(sym->GetSymbolTag() != SYM_SEMICOLON) {
             // expect SEMICOLON; here
@@ -158,7 +159,7 @@ void GrammarAnalyzer::ProcDecl() {
 
         level++;
         Block();
-        level--;
+        table[level--].clear();
 
         Getsym();
         if(sym->GetSymbolTag() != SYM_SEMICOLON) {

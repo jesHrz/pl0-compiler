@@ -1,0 +1,11 @@
+var d;
+procedure p;
+var g;
+begin
+end;
+procedure q;
+call p;
+var g;
+begin
+    g:=0;
+end.
