@@ -48,7 +48,6 @@ public:
     void Program();     // 程序
 
     void Block();       // 分程序
-    void Decls();       // 说明部分
     void Stmts();       // 语句
 
     void ConstDecl();   // 常量说明

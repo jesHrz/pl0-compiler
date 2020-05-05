@@ -13,7 +13,7 @@ CCFILES = main.cc \
 
 INCPATH += -I../symbol -I../lex
 
-DEFINES += -DLEX -DGRAMMAR
+DEFINES += -DLEX -DGRAMMAR -DPRINT_GRAMMAR_TREE
 
 include ../Makefile.common
 

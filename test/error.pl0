@@ -2,10 +2,8 @@ var d;
 procedure p;
 var g;
 begin
-end;
-procedure q;
-call p;
-var g;
+    g:=123
+end
 begin
-    g:=0;
+    call p;
 end.

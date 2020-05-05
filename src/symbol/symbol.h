@@ -3,8 +3,8 @@
 
 #include <iostream>
 
-#define sym_t unsigned int
 #define NUM_SYM 32
+#define sym_t unsigned int
 #define num_t int
 
 enum SymbolTable {

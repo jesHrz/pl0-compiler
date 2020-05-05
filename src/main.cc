@@ -11,6 +11,8 @@ LexAnalyzer* lex;
 GrammarAnalyzer* gram;
 #endif
 
+#define PRINT_GRAMMAR_TREE 1
+
 std::ifstream fin;
 
 void Halt(int code=0) {
@@ -23,7 +25,7 @@ void Halt(int code=0) {
     #endif
 
     if(fin.is_open())   fin.close();
-    if(code)    std::cerr << "pl0: exit with code " << code << std::endl;
+    std::cerr << "pl0: exit with code " << code << std::endl;
     exit(code);
 }
 
@@ -38,7 +40,7 @@ int main(int argc, char *argv[]) {
     #ifdef LEX
     lex = new LexAnalyzer(fin);
     lex->Symbolize();
-    lex->ListSymbols();
+    // lex->ListSymbols();
     #endif
 
     #ifdef GRAMMAR
