@@ -68,7 +68,7 @@ protected:
 
 private:
     Symbol(const Symbol& t) = delete;
-    bool operator=(const Symbol& t) const = delete;
+    Symbol& operator=(const Symbol& t) const = delete;
 };
 
 #include "number.h"

@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
     #ifdef GRAMMAR
     gram = new GrammarAnalyzer(lex);
     gram->Program();
+    gram->print();
     #endif
     Halt(0);
 }

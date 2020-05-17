@@ -1,9 +1,10 @@
 #include "grammar.h"
 #include <vector>
+#include <queue>
 
 #ifdef PRINT_GRAMMAR_TREE
 int _depth;
-#define _enter(...) do {\
+#define _recur(...) do {\
                         for(int i = 0; i < _depth; ++i)  printf("| ");\
                         printf("|-- ");\
                         printf(__VA_ARGS__);\
@@ -12,22 +13,34 @@ int _depth;
                     } while(0)
 void _back(int k=1) { _depth-=k; }
 #else
-#define _enter(...) 
+#define _recur(...) 
 void _back(int k=1) {}
 #endif
 
 extern void Error(const char*);
 extern void Error(Symbol*, const char*);
 extern void Error(Symbol*, std::vector<sym_t>);
+
 GrammarAnalyzer::GrammarAnalyzer(LexAnalyzer* lex): lex(lex), sym(nullptr), level(0) {
     addr = new int[RECURSION_DEPTH];
-    table = new std::map<std::string, Identifier>[RECURSION_DEPTH];
+    curTable = mainTable = nullptr;
     for(int i = 0; i < RECURSION_DEPTH; ++i)    addr[i] = 0;
 }
 
 GrammarAnalyzer::~GrammarAnalyzer() {
     delete[] addr;
-    delete[] table;
+    std::queue<IdTable*> q;
+    q.push(mainTable);
+    while(!q.empty()) {
+        IdTable* top = q.front(); q.pop();
+        if(!top)    continue;
+        auto table = top->GetIdentifierTable();
+        for(auto it = table->begin(); it != table->end(); ++it) {
+            if(it->second->link)    q.push(it->second->link);
+        }
+        delete top;
+    }
+    // delete[] table;
 }
 
 void GrammarAnalyzer::Getsym() {
@@ -48,28 +61,26 @@ void GrammarAnalyzer::Retract() {
 }
 
 void GrammarAnalyzer::Program() {
-    // std::cout << "program" << std::endl;
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
+    curTable = mainTable = new IdTable;
     Block();
     Getsym();
     if(sym->GetSymbolTag() != SYM_PERIOD) {
         // expect period. here
         Error(sym, {SYM_PERIOD});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     _back();
 }
 
 void GrammarAnalyzer::Block() {
-    // std::cout << "block" << std::endl;
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     if(level >= RECURSION_DEPTH) {
         // recursion overflow
         Error("Too many recursions, abort.");
     }
     addr[level] += 3;
-    table[level].clear();
 
     sym_t tmp[] = {SYM_CONST, SYM_VAR, SYM_PROC};
     Getsym();
@@ -90,14 +101,13 @@ void GrammarAnalyzer::Block() {
 }
 
 void GrammarAnalyzer::ConstDecl() {
-    // std::cout << "constdecl" << std::endl;
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_CONST) {
         // expected CONST here
         Error(sym, {SYM_CONST});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
@@ -107,46 +117,47 @@ void GrammarAnalyzer::ConstDecl() {
             // expect ident here
             Error(sym, {SYM_IDENT});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
+
         std::string constName = sym->GetSymbolValue();
-        if(table[level].count(constName)) {
-            // redeclaration
-            Error(sym, "redefined identifier");
-        }
         Getsym();
         if(sym->GetSymbolTag() != SYM_EQL) {
             // expect EQL= here
             Error(sym, {SYM_EQL});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         Getsym();
         if(sym->GetSymbolTag() != SYM_NUMBER) {
             // expect NUMBER here
             Error(sym, {SYM_NUMBER});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
-        table[level][constName] = Identifier(CONST, -1, -1, sym->GetNumber());
+        Identifier* ident = new Identifier(CONST, -1, -1, sym->GetNumber());
+        if(!curTable->SetIdentifier(constName, ident)) {
+            delete ident;
+            Error(sym, "redefined identifier");
+        }
+
         Getsym();
         switch(sym->GetSymbolTag()) {
-        case SYM_COMMA:     _enter("%sRep", __FUNCTION__); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
-        case SYM_SEMICOLON: _back(dep - 1); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); _back(); return;
+        case SYM_COMMA:     _recur("%sRep", __FUNCTION__); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
+        case SYM_SEMICOLON: _back(dep - 1); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); _back(); return;
         default:            Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
         }
     }
 }
 
 void GrammarAnalyzer::VarDecl() {
-    // std::cout << "vardecl" << std::endl;
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_VAR) {
         // expected VAR here
         Error(sym, {SYM_VAR});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
@@ -156,25 +167,30 @@ void GrammarAnalyzer::VarDecl() {
             // expect IDENT here
             Error(sym, {SYM_IDENT});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
+
         std::string varName = sym->GetSymbolValue();
-        if(table[level].count(varName)) {
+        Identifier* ident = new Identifier(VAR, level, addr[level]++, 0);
+        if(!curTable->SetIdentifier(varName, ident)) {
             Error(sym, "redefined identifier");
         }
-        table[level][varName] = Identifier(VAR, level, addr[level]++, 0);
+
+        // if(table[level].count(varName)) {
+        //     Error(sym, "redefined identifier");
+        // }
+        // table[level][varName] = Identifier(VAR, level, addr[level]++, 0);
         Getsym();
         switch(sym->GetSymbolTag()) {
-        case SYM_COMMA:     _enter("%sRep", __FUNCTION__); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
-        case SYM_SEMICOLON: _back(dep - 1); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
+        case SYM_COMMA:     _recur("%sRep", __FUNCTION__); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
+        case SYM_SEMICOLON: _back(dep - 1); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
         default:            Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
         }
     }
 }
 
 void GrammarAnalyzer::ProcDecl() {
-    // std::cout << "procdecl" << std::endl;
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     int dep = 0;
     while(true) {
         dep++;
@@ -183,42 +199,49 @@ void GrammarAnalyzer::ProcDecl() {
             // expected PROCEDURE here
             Error(sym, {SYM_PROC});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         Getsym();
         if(sym->GetSymbolTag() != SYM_IDENT) {
             // expect IDENT here
             Error(sym, {SYM_IDENT});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
+
         std::string procName = sym->GetSymbolValue();
-        if(table[level].count(procName)) {
+        Identifier* ident = new Identifier(PROC, level, addr[level]++, 0);
+        if(!curTable->SetIdentifier(procName, ident)) {
+            delete ident;
             Error(sym, "redefined identifier");
         }
-        table[level][procName] = Identifier(PROC, level, addr[level]++, 0);
+
         Getsym();
         if(sym->GetSymbolTag() != SYM_SEMICOLON) {
             // expect SEMICOLON; here
             Error(sym, {SYM_SEMICOLON});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
 
+        ident->link = new IdTable;
+        ident->link->SetPreTable(curTable);
+        curTable = ident->link;
         level++;
         Block();
-        table[level--].clear();
+        level--;
+        curTable = curTable->GetPreTable();
 
         Getsym();
         if(sym->GetSymbolTag() != SYM_SEMICOLON) {
             // expect SEMICOLON; here
             Error(sym, {SYM_SEMICOLON});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         Getsym();
         if(sym->GetSymbolTag() != SYM_PROC) {
-            _back(dep - 1); _enter("SYM_NUL"); _back();
+            _back(dep - 1); _recur("SYM_NUL"); _back();
             Retract();
             break;
         }
@@ -228,7 +251,7 @@ void GrammarAnalyzer::ProcDecl() {
 }
 
 void GrammarAnalyzer::Stmts() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     switch(sym->GetSymbolTag()) {
     case SYM_IDENT: Retract(); Assign();    break;  // 赋值语句
@@ -238,19 +261,19 @@ void GrammarAnalyzer::Stmts() {
     case SYM_READ:  Retract(); Read();      break; // 读语句
     case SYM_WRITE: Retract(); Write();     break; // 写语句
     case SYM_BEGIN: Retract(); Compound();  break; // 复合语句
-    default: _enter("SYM_NUL"); _back(); Retract(); break;
+    default: _recur("SYM_NUL"); _back(); Retract(); break;
     }
     _back();
 }
 
 void GrammarAnalyzer::Assign() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_IDENT) {
         // expected IDENT here
         Error(sym, {SYM_IDENT});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Identifier* ident = FindIdentifier(sym->GetSymbolValue());
     if(!ident) {
@@ -264,20 +287,20 @@ void GrammarAnalyzer::Assign() {
         // expect BECOME:= here
         Error(sym, {SYM_BECOMES});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Expr();
     _back();
 }
 
 void GrammarAnalyzer::Compound() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_BEGIN) {
         // expected BEGIN here
         Error(sym, {SYM_BEGIN});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
@@ -285,8 +308,8 @@ void GrammarAnalyzer::Compound() {
         Stmts();
         Getsym();
         switch(sym->GetSymbolTag()) {
-        case SYM_SEMICOLON: _enter("%sRep", __FUNCTION__); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
-        case SYM_END:       _back(dep - 1); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
+        case SYM_SEMICOLON: _recur("%sRep", __FUNCTION__); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
+        case SYM_END:       _back(dep - 1); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
         default:            Error(sym, {SYM_SEMICOLON, SYM_END});    // epected SEMICOLON or END here
         }
     }
@@ -294,10 +317,10 @@ void GrammarAnalyzer::Compound() {
 }
 
 void GrammarAnalyzer::Cond() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() == SYM_ODD) {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         Expr();
         _back();
         return;
@@ -312,7 +335,7 @@ void GrammarAnalyzer::Cond() {
     case SYM_LEQ:
     case SYM_GTR:
     case SYM_GEQ:
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         break;
     default:
         Error(sym, {SYM_EQL, SYM_NEQ, SYM_LSS, SYM_LEQ, SYM_GTR, SYM_GEQ}); // expected =,#,<,<=,>,>= here
@@ -322,12 +345,12 @@ void GrammarAnalyzer::Cond() {
 }
 
 void GrammarAnalyzer::Expr() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_PLUS && sym->GetSymbolTag() != SYM_MINUS) {
         Retract();
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
@@ -337,22 +360,22 @@ void GrammarAnalyzer::Expr() {
         switch (sym->GetSymbolTag())
         {
         case SYM_PLUS:
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
             break;
         case SYM_MINUS:
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
             break;
         default:
-        _enter("SYM_NUL"); _back(dep + 1);
+        _recur("SYM_NUL"); _back(dep + 1);
             Retract();
             return;
         }
-        _enter("%sRep", __FUNCTION__);
+        _recur("%sRep", __FUNCTION__);
     }
 }
 
 void GrammarAnalyzer::Term() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Factor();
     int dep = 0;
     while(true) {
@@ -361,23 +384,23 @@ void GrammarAnalyzer::Term() {
         switch (sym->GetSymbolTag())
         {
         case SYM_TIMES:
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
             break;
         case SYM_SLASH:
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
             break;
         default:
-        _enter("SYM_NUL"); _back(dep + 1);
+        _recur("SYM_NUL"); _back(dep + 1);
             Retract();
             return;
         }
         Factor();
-        _enter("%sRep", __FUNCTION__);
+        _recur("%sRep", __FUNCTION__);
     }
 }
 
 void GrammarAnalyzer::Factor() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Identifier* ident;
     Getsym();
     switch (sym->GetSymbolTag())
@@ -390,21 +413,21 @@ void GrammarAnalyzer::Factor() {
         if(ident->kind != VAR && ident->kind != CONST) {
             Error(sym, "identifier is not a var or const");
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         break;
     case SYM_NUMBER:
-    _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+    _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         break;
     case SYM_LPAREN:
-    _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+    _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         Expr();
         Getsym();
         if(sym->GetSymbolTag() != SYM_RPAREN) {
             // expected RPAREN) here
             Error(sym, {SYM_RPAREN});
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         break;
     default:
@@ -414,13 +437,13 @@ void GrammarAnalyzer::Factor() {
 }
 
 void GrammarAnalyzer::Condition() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_IF) {
         // expected IF here
         Error(sym, {SYM_IF});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Cond();
     Getsym();
@@ -428,20 +451,20 @@ void GrammarAnalyzer::Condition() {
         // expected THEN here
         Error(sym, {SYM_THEN});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Stmts();
     _back();
 }
 
 void GrammarAnalyzer::Whiledo() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_WHILE) {
         // expected WHILE here
         Error(sym, {SYM_WHILE});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Cond();
     Getsym();
@@ -449,20 +472,20 @@ void GrammarAnalyzer::Whiledo() {
         // expect DO here;
         Error(sym, {SYM_DO});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Stmts();
     _back();
 }
 
 void GrammarAnalyzer::Call() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_CALL) {
         // expected CALL here
         Error(sym, {SYM_CALL});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Getsym();
     if(sym->GetSymbolTag() != SYM_IDENT) {
@@ -476,26 +499,26 @@ void GrammarAnalyzer::Call() {
     if(ident->kind != PROC) {
         Error(sym, "identifier is not a procedure");
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     _back();
 }
 
 void GrammarAnalyzer::Read() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_READ) {
         // expected READ here
         Error(sym, {SYM_READ});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Getsym();
     if(sym->GetSymbolTag() != SYM_LPAREN) {
         // expected LPAREN( here
         Error(sym, {SYM_LPAREN});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
@@ -512,55 +535,43 @@ void GrammarAnalyzer::Read() {
         if(ident->kind != VAR && ident->kind != CONST) {
             Error(sym, "identifier is not a var or const");
         } else {
-            _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
         }
         Getsym();
         switch (sym->GetSymbolTag())
         {
-        case SYM_COMMA:     _enter("%sRep", __FUNCTION__); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
-        case SYM_RPAREN:    _back(dep - 1); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
+        case SYM_COMMA:     _recur("%sRep", __FUNCTION__); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
+        case SYM_RPAREN:    _back(dep - 1); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
         default:            Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
         }
     }
 }
 
 void GrammarAnalyzer::Write() {
-    _enter(__FUNCTION__);
+    _recur(__FUNCTION__);
     Getsym();
     if(sym->GetSymbolTag() != SYM_WRITE) {
         // expected READ here
         Error(sym, {SYM_WRITE});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     Getsym();
     if(sym->GetSymbolTag() != SYM_LPAREN) {
         // expected LPAREN( here
         Error(sym, {SYM_LPAREN});
     } else {
-        _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back();
     }
     int dep = 0;
     while(true) {
         dep++;
         Expr();
-        // Getsym();
-        // if(sym->GetSymbolTag() != SYM_IDENT) {
-        //     // expected IDENT here
-        //     Error(sym, {SYM_IDENT});
-        // }
-        // Identifier* ident = FindIdentifier(sym->GetSymbolValue());
-        // if(!ident) {
-        //     Error(sym, "undefined identifer");
-        // }
-        // if(ident->kind != VAR && ident->kind != CONST) {
-        //     Error(sym, "identifier is not a var or const");
-        // }
         Getsym();
         switch (sym->GetSymbolTag())
         {
-        case SYM_COMMA:     _enter("%sRep", __FUNCTION__); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
-        case SYM_RPAREN:    _back(dep - 1); _enter("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
+        case SYM_COMMA:     _recur("%sRep", __FUNCTION__); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(); break;
+        case SYM_RPAREN:    _back(dep - 1); _recur("Symbol [%s]", sym->GetSymbolValue().c_str()); _back(2); return;
         default:            Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
         }
     }

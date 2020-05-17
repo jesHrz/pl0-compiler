@@ -10,8 +10,9 @@ CCFILES = main.cc \
 		  symbol.cc \
 		  word.cc \
 		  error.cc \
+		  idtable.cc
 
-INCPATH += -I../symbol -I../lex
+INCPATH += -I../grammar -I../symbol -I../lex
 
 DEFINES += -DLEX -DGRAMMAR -DPRINT_GRAMMAR_TREE
 
