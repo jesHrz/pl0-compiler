@@ -17,6 +17,13 @@ GrammarAnalyzer *gram;
 CodeTable *pcodes;
 #endif
 
+#ifdef VM
+
+#include "vm/vm.h"
+
+VirtualMachine *vm;
+#endif
+
 std::ifstream fin;
 
 void Halt(int exitCode = 0) {
@@ -27,6 +34,10 @@ void Halt(int exitCode = 0) {
 #ifdef GRAMMAR
     delete gram;
     delete pcodes;
+#endif
+
+#ifdef VM
+    delete vm;
 #endif
 
     if (fin.is_open()) fin.close();
@@ -47,13 +58,18 @@ int main(int argc, char *argv[]) {
 #ifdef LEX
     lex = new LexAnalyzer(fin);
     lex->Symbolize();
+//    lex->ListSymbols();
 #endif
 
 #ifdef GRAMMAR
     pcodes = new CodeTable;
     gram = new GrammarAnalyzer(lex, pcodes);
     gram->Program();
-    pcodes->ListCodes();
+//    pcodes->ListCodes();
+#ifdef VM
+    vm = new VirtualMachine(pcodes);
+    vm->run();
+#endif
 #endif
     Halt(0);
 }

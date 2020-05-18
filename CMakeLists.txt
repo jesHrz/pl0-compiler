@@ -3,8 +3,8 @@ project(pl0)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_compile_options(-DLEX -DGRAMMAR)
-add_compile_options(-DPRINT_GRAMMAR_TREE)
+add_compile_options(-DLEX -DGRAMMAR -DVM)
+#add_compile_options(-DPRINT_GRAMMAR_TREE)
 
 include_directories(src src/grammar src/lex src/symbol src/vm)
 

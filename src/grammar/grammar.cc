@@ -249,7 +249,7 @@ void GrammarAnalyzer::ProcDecl() {
         }
 
         std::string procName = sym->GetSymbolValue();
-        auto *ident = new Identifier(PROC, level);
+        auto *ident = new Identifier(PROC, level++);
         if (!curTable->SetIdentifier(procName, ident)) {
             delete ident;
             Error(sym, "redefined identifier");
@@ -269,9 +269,8 @@ void GrammarAnalyzer::ProcDecl() {
         ident->link->SetPreTable(curTable);
         ident->addr = pcodes->size();
         curTable = ident->link;
-        level++;
         Block();
-        level--;
+        addr[--level] = 0;
         curTable = curTable->GetPreTable();
         pcodes->Gen(OPR, 0, OPR_RET);
         tmp->BackPatch(pcodes->size());

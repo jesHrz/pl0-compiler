@@ -1,7 +1,10 @@
-const a = 10;
-var b, c;
-procedure p;
+var a, b;
 begin
-    c := a + b
-end;
-call p.
+    read(a, b);
+    while a # b do
+    begin
+        if a > b then a := a - b;
+        if a < b then b := b - a;
+    end;
+    write(a);
+end.

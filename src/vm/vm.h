@@ -3,20 +3,23 @@
 
 #include "grammar/pcode.h"
 
+
+#define STACK_SIZE 1024
+
 class VirtualMachine {
 public:
-    VirtualMachine(CodeTable *pcodes);
+    explicit VirtualMachine(CodeTable *pcodes);
 
     ~VirtualMachine();
 
     void run();
 
 private:
-    CodeTable *pcodes;
     int *stack;
-    size_t sp, bp, pc;
+    int sp, bp, pc;
+    CodeTable *pcodes;
 
-    void exception(int operation);
+    void exception(pcode *ir = nullptr);
 };
 
 #endif /* __VM_H_ */

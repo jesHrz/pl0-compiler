@@ -1,3 +1,5 @@
-/.idea/
-/build/
+.idea/
+build/
 pl0
+
+.DS_Store
