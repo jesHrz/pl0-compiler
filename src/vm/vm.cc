@@ -27,94 +27,94 @@ void VirtualMachine::run() {
     while (pc != -1) {
         ir = pcodes->at(pc++);
         switch (ir->GetF()) {
-            case LIT:
-                stack[++sp] = ir->GetA();
+        case LIT:
+            stack[++sp] = ir->GetA();
+            break;
+        case LOD:
+            stack[++sp] = stack[base(ir->GetL()) + ir->GetA()];
+            break;
+        case STO:
+            stack[base(ir->GetL()) + ir->GetA()] = stack[sp--];
+            break;
+        case CAL:
+            stack[sp + 1] = base(ir->GetL());
+            stack[sp + 2] = bp;
+            stack[sp + 3] = pc;
+            bp = sp + 1;
+            pc = ir->GetA();
+            break;
+        case INT:
+            sp += ir->GetA();
+            break;
+        case JMP:
+            pc = ir->GetA();
+            break;
+        case JPC:
+            if (!stack[sp--]) pc = ir->GetA();
+            break;
+        case OPR:
+            switch (ir->GetA()) {
+            case OPR_RET:
+                sp = bp - 1;
+                bp = stack[sp + 2];
+                pc = stack[sp + 3];
                 break;
-            case LOD:
-                stack[++sp] = stack[base(ir->GetL()) + ir->GetA()];
+            case OPR_NEG:
+                stack[sp] = -stack[sp];
                 break;
-            case STO:
-                stack[base(ir->GetL()) + ir->GetA()] = stack[sp--];
+            case OPR_ADD:
+                stack[sp - 1] += stack[sp];
+                sp--;
                 break;
-            case CAL:
-                stack[sp + 1] = base(ir->GetL());
-                stack[sp + 2] = bp;
-                stack[sp + 3] = pc;
-                bp = sp + 1;
-                pc = ir->GetA();
+            case OPR_SUB:
+                stack[sp - 1] -= stack[sp];
+                sp--;
                 break;
-            case INT:
-                sp += ir->GetA();
+            case OPR_MUL:
+                stack[sp - 1] *= stack[sp];
+                sp--;
                 break;
-            case JMP:
-                pc = ir->GetA();
+            case OPR_DIV:
+                stack[sp - 1] /= stack[sp];
+                sp--;
                 break;
-            case JPC:
-                if (!stack[sp--]) pc = ir->GetA();
+            case OPR_EQL:
+                stack[sp - 1] = (stack[sp - 1] == stack[sp]);
+                sp--;
                 break;
-            case OPR:
-                switch (ir->GetA()) {
-                    case OPR_RET:
-                        sp = bp - 1;
-                        bp = stack[sp + 2];
-                        pc = stack[sp + 3];
-                        break;
-                    case OPR_NEG:
-                        stack[sp] = -stack[sp];
-                        break;
-                    case OPR_ADD:
-                        stack[sp - 1] += stack[sp];
-                        sp--;
-                        break;
-                    case OPR_SUB:
-                        stack[sp - 1] -= stack[sp];
-                        sp--;
-                        break;
-                    case OPR_MUL:
-                        stack[sp - 1] *= stack[sp];
-                        sp--;
-                        break;
-                    case OPR_DIV:
-                        stack[sp - 1] /= stack[sp];
-                        sp--;
-                        break;
-                    case OPR_EQL:
-                        stack[sp - 1] = (stack[sp - 1] == stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_NEQ:
-                        stack[sp - 1] = (stack[sp - 1] != stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_LSS:
-                        stack[sp - 1] = (stack[sp - 1] < stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_LEQ:
-                        stack[sp - 1] = (stack[sp - 1] <= stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_GTR:
-                        stack[sp - 1] = (stack[sp - 1] > stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_GEQ:
-                        stack[sp - 1] = (stack[sp - 1] >= stack[sp]);
-                        sp--;
-                        break;
-                    case OPR_ODD:
-                        stack[sp] = !stack[sp];
-                        break;
-                    case OPR_RD:
-                    case OPR_WR:
-                        exception(ir);
-                        break;
-                    default:
-                        exception();
-                }
+            case OPR_NEQ:
+                stack[sp - 1] = (stack[sp - 1] != stack[sp]);
+                sp--;
+                break;
+            case OPR_LSS:
+                stack[sp - 1] = (stack[sp - 1] < stack[sp]);
+                sp--;
+                break;
+            case OPR_LEQ:
+                stack[sp - 1] = (stack[sp - 1] <= stack[sp]);
+                sp--;
+                break;
+            case OPR_GTR:
+                stack[sp - 1] = (stack[sp - 1] > stack[sp]);
+                sp--;
+                break;
+            case OPR_GEQ:
+                stack[sp - 1] = (stack[sp - 1] >= stack[sp]);
+                sp--;
+                break;
+            case OPR_ODD:
+                stack[sp] = !stack[sp];
+                break;
+            case OPR_RD:
+            case OPR_WR:
+                exception(ir);
                 break;
             default:
                 exception();
+            }
+            break;
+        default:
+            exception();
         }
     }
 }
@@ -127,19 +127,19 @@ void VirtualMachine::exception(pcode *ir) {
         Halt(-1);
     }
     switch (ir->GetF()) {
-        case OPR:
-            switch (ir->GetA()) {
-                case OPR_RD:
-                    std::cin >> this->stack[++sp];
-                    break;
-                case OPR_WR:
-                    std::cout << this->stack[sp--] << std::endl;
-                    break;
-                default:
-                    break;
-            }
+    case OPR:
+        switch (ir->GetA()) {
+        case OPR_RD:
+            std::cin >> this->stack[++sp];
+            break;
+        case OPR_WR:
+            std::cout << this->stack[sp--] << std::endl;
+            break;
         default:
             break;
+        }
+    default:
+        break;
     }
 }
 

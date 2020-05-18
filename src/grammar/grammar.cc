@@ -15,8 +15,10 @@ int _depth;
 void _back(int k = 1) { _depth -= k; }
 
 #else
-#define _recur(...) 
-void _back(int k=1) {}
+#define _recur(...)
+
+void _back(int k = 1) {}
+
 #endif
 
 extern void Error(const char *);
@@ -96,17 +98,17 @@ void GrammarAnalyzer::Block() {
         if (sym->GetSymbolTag() == tmp[i]) {
             Retract();
             switch (i) {
-                case 0:
-                    ConstDecl();
-                    break;
-                case 1:
-                    VarDecl();
-                    break;
-                case 2:
-                    ProcDecl();
-                    break;
-                default:
-                    break;
+            case 0:
+                ConstDecl();
+                break;
+            case 1:
+                VarDecl();
+                break;
+            case 2:
+                ProcDecl();
+                break;
+            default:
+                break;
             }
             Getsym();
         }
@@ -163,18 +165,18 @@ void GrammarAnalyzer::ConstDecl() {
 
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_COMMA:
-                _recur("%sRep", __FUNCTION__);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                break;
-            case SYM_SEMICOLON:
-                _back(dep - 1);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back(2);
-                return;
-            default:
-                Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
+        case SYM_COMMA:
+            _recur("%sRep", __FUNCTION__);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            break;
+        case SYM_SEMICOLON:
+            _back(dep - 1);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back(2);
+            return;
+        default:
+            Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
         }
     }
 }
@@ -209,19 +211,19 @@ void GrammarAnalyzer::VarDecl() {
 
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_COMMA:
-                _recur("%sRep", __FUNCTION__);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                break;
-            case SYM_SEMICOLON:
-                _back(dep - 1);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back(2);
-                pcodes->Gen(INT, 0, dep);
-                return;
-            default:
-                Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
+        case SYM_COMMA:
+            _recur("%sRep", __FUNCTION__);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            break;
+        case SYM_SEMICOLON:
+            _back(dep - 1);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back(2);
+            pcodes->Gen(INT, 0, dep);
+            return;
+        default:
+            Error(sym, {SYM_COMMA, SYM_SEMICOLON});   // expect COMMA, or SEMICOLON; here
         }
     }
 }
@@ -300,39 +302,39 @@ void GrammarAnalyzer::Stmts() {
     _recur(__FUNCTION__);
     Getsym();
     switch (sym->GetSymbolTag()) {
-        case SYM_IDENT:
-            Retract();
-            Assign();
-            break;  // 赋值语句
-        case SYM_IF:
-            Retract();
-            Condition();
-            break; // 条件语句
-        case SYM_WHILE:
-            Retract();
-            Whiledo();
-            break; // 当型循环语句
-        case SYM_CALL:
-            Retract();
-            Call();
-            break; // 过程调用语句
-        case SYM_READ:
-            Retract();
-            Read();
-            break; // 读语句
-        case SYM_WRITE:
-            Retract();
-            Write();
-            break; // 写语句
-        case SYM_BEGIN:
-            Retract();
-            Compound();
-            break; // 复合语句
-        default:
-            _recur("SYM_NUL");
-            _back();
-            Retract();
-            break;
+    case SYM_IDENT:
+        Retract();
+        Assign();
+        break;  // 赋值语句
+    case SYM_IF:
+        Retract();
+        Condition();
+        break; // 条件语句
+    case SYM_WHILE:
+        Retract();
+        Whiledo();
+        break; // 当型循环语句
+    case SYM_CALL:
+        Retract();
+        Call();
+        break; // 过程调用语句
+    case SYM_READ:
+        Retract();
+        Read();
+        break; // 读语句
+    case SYM_WRITE:
+        Retract();
+        Write();
+        break; // 写语句
+    case SYM_BEGIN:
+        Retract();
+        Compound();
+        break; // 复合语句
+    default:
+        _recur("SYM_NUL");
+        _back();
+        Retract();
+        break;
     }
     _back();
 }
@@ -383,18 +385,18 @@ void GrammarAnalyzer::Compound() {
         Stmts();
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_SEMICOLON:
-                _recur("%sRep", __FUNCTION__);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                break;
-            case SYM_END:
-                _back(dep - 1);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back(2);
-                return;
-            default:
-                Error(sym, {SYM_SEMICOLON, SYM_END});    // epected SEMICOLON or END here
+        case SYM_SEMICOLON:
+            _recur("%sRep", __FUNCTION__);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            break;
+        case SYM_END:
+            _back(dep - 1);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back(2);
+            return;
+        default:
+            Error(sym, {SYM_SEMICOLON, SYM_END});    // epected SEMICOLON or END here
         }
     }
 }
@@ -415,40 +417,40 @@ void GrammarAnalyzer::Cond() {
     Getsym();
     sym_t tag = sym->GetSymbolTag();
     switch (tag) {
-        case SYM_EQL:
-        case SYM_NEQ:
-        case SYM_LSS:
-        case SYM_LEQ:
-        case SYM_GTR:
-        case SYM_GEQ:
-            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
-            break;
-        default:
-            Error(sym, {SYM_EQL, SYM_NEQ, SYM_LSS, SYM_LEQ, SYM_GTR, SYM_GEQ}); // expected =,#,<,<=,>,>= here
+    case SYM_EQL:
+    case SYM_NEQ:
+    case SYM_LSS:
+    case SYM_LEQ:
+    case SYM_GTR:
+    case SYM_GEQ:
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+        _back();
+        break;
+    default:
+        Error(sym, {SYM_EQL, SYM_NEQ, SYM_LSS, SYM_LEQ, SYM_GTR, SYM_GEQ}); // expected =,#,<,<=,>,>= here
     }
     Expr();
     switch (tag) {
-        case SYM_EQL:
-            pcodes->Gen(OPR, 0, OPR_EQL);
-            break;
-        case SYM_NEQ:
-            pcodes->Gen(OPR, 0, OPR_NEQ);
-            break;
-        case SYM_LSS:
-            pcodes->Gen(OPR, 0, OPR_LSS);
-            break;
-        case SYM_LEQ:
-            pcodes->Gen(OPR, 0, OPR_LEQ);
-            break;
-        case SYM_GTR:
-            pcodes->Gen(OPR, 0, OPR_GTR);
-            break;
-        case SYM_GEQ:
-            pcodes->Gen(OPR, 0, OPR_GEQ);
-            break;
-        default:
-            break;
+    case SYM_EQL:
+        pcodes->Gen(OPR, 0, OPR_EQL);
+        break;
+    case SYM_NEQ:
+        pcodes->Gen(OPR, 0, OPR_NEQ);
+        break;
+    case SYM_LSS:
+        pcodes->Gen(OPR, 0, OPR_LSS);
+        break;
+    case SYM_LEQ:
+        pcodes->Gen(OPR, 0, OPR_LEQ);
+        break;
+    case SYM_GTR:
+        pcodes->Gen(OPR, 0, OPR_GTR);
+        break;
+    case SYM_GEQ:
+        pcodes->Gen(OPR, 0, OPR_GEQ);
+        break;
+    default:
+        break;
     }
     _back();
 }
@@ -471,21 +473,21 @@ void GrammarAnalyzer::Expr() {
         dep++;
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_PLUS:
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                lastCode = new pcode(OPR, 0, OPR_ADD);
-                break;
-            case SYM_MINUS:
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                lastCode = new pcode(OPR, 0, OPR_SUB);
-                break;
-            default:
-                _recur("SYM_NUL");
-                _back(dep + 1);
-                Retract();
-                return;
+        case SYM_PLUS:
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            lastCode = new pcode(OPR, 0, OPR_ADD);
+            break;
+        case SYM_MINUS:
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            lastCode = new pcode(OPR, 0, OPR_SUB);
+            break;
+        default:
+            _recur("SYM_NUL");
+            _back(dep + 1);
+            Retract();
+            return;
         }
         Term();
         pcodes->Gen(lastCode);
@@ -502,21 +504,21 @@ void GrammarAnalyzer::Term() {
         dep++;
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_TIMES:
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                lastCode = new pcode(OPR, 0, OPR_MUL);
-                break;
-            case SYM_SLASH:
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                lastCode = new pcode(OPR, 0, OPR_DIV);
-                break;
-            default:
-                _recur("SYM_NUL");
-                _back(dep + 1);
-                Retract();
-                return;
+        case SYM_TIMES:
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            lastCode = new pcode(OPR, 0, OPR_MUL);
+            break;
+        case SYM_SLASH:
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            lastCode = new pcode(OPR, 0, OPR_DIV);
+            break;
+        default:
+            _recur("SYM_NUL");
+            _back(dep + 1);
+            Retract();
+            return;
         }
         Factor();
         pcodes->Gen(lastCode);
@@ -529,46 +531,46 @@ void GrammarAnalyzer::Factor() {
     Identifier *ident;
     Getsym();
     switch (sym->GetSymbolTag()) {
-        case SYM_IDENT:
-            ident = FindIdentifier(sym->GetSymbolValue());
-            if (!ident) {
-                Error(sym, "undefined identifier");
-            }
-            switch (ident->kind) {
-                case CONST:
-                    _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                    _back();
-                    pcodes->Gen(LIT, 0, ident->value);
-                    break;
-                case VAR:
-                    _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                    _back();
-                    pcodes->Gen(LOD, abs(ident->level - level), ident->addr);
-                    break;
-                default:
-                    Error(sym, "identifier is not a var or const");
-            }
-            break;
-        case SYM_NUMBER:
+    case SYM_IDENT:
+        ident = FindIdentifier(sym->GetSymbolValue());
+        if (!ident) {
+            Error(sym, "undefined identifier");
+        }
+        switch (ident->kind) {
+        case CONST:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
             _back();
-            pcodes->Gen(LIT, 0, sym->GetNumber());
+            pcodes->Gen(LIT, 0, ident->value);
             break;
-        case SYM_LPAREN:
+        case VAR:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
             _back();
-            Expr();
-            Getsym();
-            if (sym->GetSymbolTag() != SYM_RPAREN) {
-                // expected RPAREN) here
-                Error(sym, {SYM_RPAREN});
-            } else {
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-            }
+            pcodes->Gen(LOD, abs(ident->level - level), ident->addr);
             break;
         default:
-            Error(sym, {SYM_IDENT, SYM_NUMBER, SYM_LPAREN});    // nothing matched
+            Error(sym, "identifier is not a var or const");
+        }
+        break;
+    case SYM_NUMBER:
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+        _back();
+        pcodes->Gen(LIT, 0, sym->GetNumber());
+        break;
+    case SYM_LPAREN:
+        _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+        _back();
+        Expr();
+        Getsym();
+        if (sym->GetSymbolTag() != SYM_RPAREN) {
+            // expected RPAREN) here
+            Error(sym, {SYM_RPAREN});
+        } else {
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+        }
+        break;
+    default:
+        Error(sym, {SYM_IDENT, SYM_NUMBER, SYM_LPAREN});    // nothing matched
     }
     _back();
 }
@@ -694,18 +696,18 @@ void GrammarAnalyzer::Read() {
         }
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_COMMA:
-                _recur("%sRep", __FUNCTION__);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                break;
-            case SYM_RPAREN:
-                _back(dep - 1);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back(2);
-                return;
-            default:
-                Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
+        case SYM_COMMA:
+            _recur("%sRep", __FUNCTION__);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            break;
+        case SYM_RPAREN:
+            _back(dep - 1);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back(2);
+            return;
+        default:
+            Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
         }
     }
 }
@@ -735,18 +737,18 @@ void GrammarAnalyzer::Write() {
         pcodes->Gen(OPR, 0, OPR_WR);
         Getsym();
         switch (sym->GetSymbolTag()) {
-            case SYM_COMMA:
-                _recur("%sRep", __FUNCTION__);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back();
-                break;
-            case SYM_RPAREN:
-                _back(dep - 1);
-                _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-                _back(2);
-                return;
-            default:
-                Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
+        case SYM_COMMA:
+            _recur("%sRep", __FUNCTION__);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back();
+            break;
+        case SYM_RPAREN:
+            _back(dep - 1);
+            _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
+            _back(2);
+            return;
+        default:
+            Error(sym, {SYM_COMMA, SYM_RPAREN});    // expected COMMA, or RPAREN) here
         }
     }
 }

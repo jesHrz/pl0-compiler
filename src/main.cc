@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
 
 #ifdef LEX
 
@@ -49,6 +50,11 @@ void Halt(int exitCode = 0) {
 }
 
 int main(int argc, char *argv[]) {
+
+    signal(SIGINT, Halt);
+    signal(SIGKILL, Halt);
+    signal(SIGTERM, Halt);
+
     if (argc < 2) {
         std::cerr << "Usage: pl0 <src>" << std::endl;
         return 0;
