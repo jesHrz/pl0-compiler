@@ -12,12 +12,12 @@ int _depth;
                         _depth++; \
                     } while(0)
 
-void _back(int k = 1) { _depth -= k; }
+#define _back(k) { _depth -= (k); }
 
 #else
 #define _recur(...)
 
-void _back(int k = 1) {}
+#define _back(k)
 
 #endif
 
@@ -80,7 +80,7 @@ void GrammarAnalyzer::Program() {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
         pcodes->Gen(OPR, 0, OPR_RET);
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Block() {
@@ -115,7 +115,7 @@ void GrammarAnalyzer::Block() {
     }
     Retract();
     Stmts();
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::ConstDecl() {
@@ -126,7 +126,7 @@ void GrammarAnalyzer::ConstDecl() {
         Error(sym, {SYM_CONST});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int dep = 0;
     while (true) {
@@ -137,7 +137,7 @@ void GrammarAnalyzer::ConstDecl() {
             Error(sym, {SYM_IDENT});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
 
         std::string constName = sym->GetSymbolValue();
@@ -147,7 +147,7 @@ void GrammarAnalyzer::ConstDecl() {
             Error(sym, {SYM_EQL});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
         Getsym();
         if (sym->GetSymbolTag() != SYM_NUMBER) {
@@ -155,7 +155,7 @@ void GrammarAnalyzer::ConstDecl() {
             Error(sym, {SYM_NUMBER});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
         auto *ident = new Identifier(CONST, -1, -1, sym->GetNumber());
         if (!curTable->SetIdentifier(constName, ident)) {
@@ -168,7 +168,7 @@ void GrammarAnalyzer::ConstDecl() {
         case SYM_COMMA:
             _recur("%sRep", __FUNCTION__);
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             break;
         case SYM_SEMICOLON:
             _back(dep - 1);
@@ -189,7 +189,7 @@ void GrammarAnalyzer::VarDecl() {
         Error(sym, {SYM_VAR});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int dep = 0;
     while (true) {
@@ -200,7 +200,7 @@ void GrammarAnalyzer::VarDecl() {
             Error(sym, {SYM_IDENT});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
 
         std::string varName = sym->GetSymbolValue();
@@ -214,7 +214,7 @@ void GrammarAnalyzer::VarDecl() {
         case SYM_COMMA:
             _recur("%sRep", __FUNCTION__);
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             break;
         case SYM_SEMICOLON:
             _back(dep - 1);
@@ -239,7 +239,7 @@ void GrammarAnalyzer::ProcDecl() {
             Error(sym, {SYM_PROC});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
         Getsym();
         if (sym->GetSymbolTag() != SYM_IDENT) {
@@ -247,7 +247,7 @@ void GrammarAnalyzer::ProcDecl() {
             Error(sym, {SYM_IDENT});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
 
         std::string procName = sym->GetSymbolValue();
@@ -263,7 +263,7 @@ void GrammarAnalyzer::ProcDecl() {
             Error(sym, {SYM_SEMICOLON});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
 
         pcode *tmp = pcodes->Gen(JMP, 0, 0);
@@ -283,19 +283,19 @@ void GrammarAnalyzer::ProcDecl() {
             Error(sym, {SYM_SEMICOLON});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
         Getsym();
         if (sym->GetSymbolTag() != SYM_PROC) {
             _back(dep - 1);
             _recur("SYM_NUL");
-            _back();
+            _back(1);
             Retract();
             break;
         }
         Retract();
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Stmts() {
@@ -332,11 +332,11 @@ void GrammarAnalyzer::Stmts() {
         break; // 复合语句
     default:
         _recur("SYM_NUL");
-        _back();
+        _back(1);
         Retract();
         break;
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Assign() {
@@ -347,7 +347,7 @@ void GrammarAnalyzer::Assign() {
         Error(sym, {SYM_IDENT});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Identifier *ident = FindIdentifier(sym->GetSymbolValue());
     if (!ident) {
@@ -362,11 +362,11 @@ void GrammarAnalyzer::Assign() {
         Error(sym, {SYM_BECOMES});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Expr();
     pcodes->Gen(STO, abs(ident->level - level), ident->addr);
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Compound() {
@@ -377,7 +377,7 @@ void GrammarAnalyzer::Compound() {
         Error(sym, {SYM_BEGIN});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int dep = 0;
     while (true) {
@@ -388,7 +388,7 @@ void GrammarAnalyzer::Compound() {
         case SYM_SEMICOLON:
             _recur("%sRep", __FUNCTION__);
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             break;
         case SYM_END:
             _back(dep - 1);
@@ -406,10 +406,10 @@ void GrammarAnalyzer::Cond() {
     Getsym();
     if (sym->GetSymbolTag() == SYM_ODD) {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         Expr();
         pcodes->Gen(OPR, 0, OPR_ODD);
-        _back();
+        _back(1);
         return;
     }
     Retract();
@@ -424,7 +424,7 @@ void GrammarAnalyzer::Cond() {
     case SYM_GTR:
     case SYM_GEQ:
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         break;
     default:
         Error(sym, {SYM_EQL, SYM_NEQ, SYM_LSS, SYM_LEQ, SYM_GTR, SYM_GEQ}); // expected =,#,<,<=,>,>= here
@@ -452,7 +452,7 @@ void GrammarAnalyzer::Cond() {
     default:
         break;
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Expr() {
@@ -463,7 +463,7 @@ void GrammarAnalyzer::Expr() {
         Retract();
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         if (sym->GetSymbolTag() == SYM_MINUS) lastCode = new pcode(OPR, 0, OPR_NEG);
     }
     int dep = 0;
@@ -475,12 +475,12 @@ void GrammarAnalyzer::Expr() {
         switch (sym->GetSymbolTag()) {
         case SYM_PLUS:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             lastCode = new pcode(OPR, 0, OPR_ADD);
             break;
         case SYM_MINUS:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             lastCode = new pcode(OPR, 0, OPR_SUB);
             break;
         default:
@@ -506,12 +506,12 @@ void GrammarAnalyzer::Term() {
         switch (sym->GetSymbolTag()) {
         case SYM_TIMES:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             lastCode = new pcode(OPR, 0, OPR_MUL);
             break;
         case SYM_SLASH:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             lastCode = new pcode(OPR, 0, OPR_DIV);
             break;
         default:
@@ -539,12 +539,12 @@ void GrammarAnalyzer::Factor() {
         switch (ident->kind) {
         case CONST:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             pcodes->Gen(LIT, 0, ident->value);
             break;
         case VAR:
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             pcodes->Gen(LOD, abs(ident->level - level), ident->addr);
             break;
         default:
@@ -553,12 +553,12 @@ void GrammarAnalyzer::Factor() {
         break;
     case SYM_NUMBER:
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         pcodes->Gen(LIT, 0, sym->GetNumber());
         break;
     case SYM_LPAREN:
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         Expr();
         Getsym();
         if (sym->GetSymbolTag() != SYM_RPAREN) {
@@ -566,13 +566,13 @@ void GrammarAnalyzer::Factor() {
             Error(sym, {SYM_RPAREN});
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
         }
         break;
     default:
         Error(sym, {SYM_IDENT, SYM_NUMBER, SYM_LPAREN});    // nothing matched
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Condition() {
@@ -583,7 +583,7 @@ void GrammarAnalyzer::Condition() {
         Error(sym, {SYM_IF});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Cond();
     Getsym();
@@ -592,12 +592,12 @@ void GrammarAnalyzer::Condition() {
         Error(sym, {SYM_THEN});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     pcode *tmp = pcodes->Gen(JPC, 0, 0);
     Stmts();
     tmp->BackPatch(pcodes->size());
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Whiledo() {
@@ -608,7 +608,7 @@ void GrammarAnalyzer::Whiledo() {
         Error(sym, {SYM_WHILE});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int BEGIN = pcodes->size();
     Cond();
@@ -618,13 +618,13 @@ void GrammarAnalyzer::Whiledo() {
         Error(sym, {SYM_DO});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     pcode *tmp = pcodes->Gen(JPC, 0, 0);
     Stmts();
     pcodes->Gen(JMP, 0, BEGIN);
     tmp->BackPatch(pcodes->size());
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Call() {
@@ -635,7 +635,7 @@ void GrammarAnalyzer::Call() {
         Error(sym, {SYM_CALL});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Getsym();
     if (sym->GetSymbolTag() != SYM_IDENT) {
@@ -650,10 +650,10 @@ void GrammarAnalyzer::Call() {
         Error(sym, "identifier is not a procedure");
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
         pcodes->Gen(CAL, abs(ident->level - level), ident->addr);
     }
-    _back();
+    _back(1);
 }
 
 void GrammarAnalyzer::Read() {
@@ -664,7 +664,7 @@ void GrammarAnalyzer::Read() {
         Error(sym, {SYM_READ});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Getsym();
     if (sym->GetSymbolTag() != SYM_LPAREN) {
@@ -672,7 +672,7 @@ void GrammarAnalyzer::Read() {
         Error(sym, {SYM_LPAREN});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int dep = 0;
     while (true) {
@@ -690,7 +690,7 @@ void GrammarAnalyzer::Read() {
             Error(sym, "identifier is not a var or const");
         } else {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             pcodes->Gen(OPR, 0, OPR_RD);
             pcodes->Gen(STO, abs(ident->level - level), ident->addr);
         }
@@ -699,7 +699,7 @@ void GrammarAnalyzer::Read() {
         case SYM_COMMA:
             _recur("%sRep", __FUNCTION__);
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             break;
         case SYM_RPAREN:
             _back(dep - 1);
@@ -720,7 +720,7 @@ void GrammarAnalyzer::Write() {
         Error(sym, {SYM_WRITE});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     Getsym();
     if (sym->GetSymbolTag() != SYM_LPAREN) {
@@ -728,7 +728,7 @@ void GrammarAnalyzer::Write() {
         Error(sym, {SYM_LPAREN});
     } else {
         _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-        _back();
+        _back(1);
     }
     int dep = 0;
     while (true) {
@@ -740,7 +740,7 @@ void GrammarAnalyzer::Write() {
         case SYM_COMMA:
             _recur("%sRep", __FUNCTION__);
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
-            _back();
+            _back(1);
             break;
         case SYM_RPAREN:
             _back(dep - 1);
