@@ -4,7 +4,7 @@
 
 VirtualMachine::VirtualMachine(CodeTable *pcodes) : sp(0), bp(0), pc(0) {
     this->pcodes = pcodes;
-    this->stack = new int[STACK_SIZE];
+    this->stack = new STACK_TYPE[STACK_SIZE];
 }
 
 VirtualMachine::~VirtualMachine() {
@@ -22,9 +22,9 @@ void VirtualMachine::run() {
     sp = pc = 0;
     bp = 1;
     stack[1] = stack[2] = 0;
-    stack[3] = -1;
+    stack[3] = STACK_SIZE;
     pcode *ir;
-    while (pc != -1) {
+    while (pc < STACK_SIZE) {
         ir = pcodes->at(pc++);
         switch (ir->GetF()) {
         case LIT:
