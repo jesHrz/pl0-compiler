@@ -22,7 +22,7 @@ IdTable* IdTable::GetPreTable() { return this->preTable; }
 
 std::map<std::string, Identifier*>* IdTable::GetIdentifierTable() { return &this->table; }
 
-void IdTable::print() {
+void IdTable::ListTable() {
     IdTable::print(this, 0);
 }
 

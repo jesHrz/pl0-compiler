@@ -7,40 +7,14 @@
 #include "lex.h"
 #include "symbol.h"
 #include "idtable.h"
+#include "pcode.h"
 
 
 #define RECURSION_DEPTH 3
 
-
-// enum KIND {
-//     NIL,
-//     CONST,
-//     VAR,
-//     PROC,
-// };
-
-// class Identifier {
-// public:
-//     Identifier(enum KIND kind=NIL, int level=-1, int addr=-1, num_t value=0): kind(kind), level(level), addr(addr), value(value) {}
-//     Identifier(const Identifier& t): kind(t.kind), level(t.level), addr(t.addr), value(t.value) {}
-//     Identifier& operator=(const Identifier& t) {
-//         if(this == &t)  return *this;
-//         kind = t.kind;
-//         level = t.level;
-//         addr = t.addr;
-//         value = t.value;
-//         return *this;
-//     };
-
-//     KIND kind;
-//     int level;
-//     int addr;
-//     num_t value;
-// };
-
 class GrammarAnalyzer {
 public:
-    GrammarAnalyzer(LexAnalyzer* lex);
+    GrammarAnalyzer(LexAnalyzer* lex, CodeTable* pcodes);
     ~GrammarAnalyzer();
 
     void Getsym();
@@ -68,18 +42,18 @@ public:
     void Term();        // 项
     void Factor();      // 因子
 
-    void print() const { mainTable->print(); };
+    void ListTable() const { mainTable->ListTable(); };
 
 protected:
     LexAnalyzer* lex;
     Symbol *sym;
+    CodeTable* pcodes;
     
     int level;
     int* addr;
 
     IdTable* mainTable;
     IdTable* curTable;
-    // std::map<std::string, Identifier>* table;
 private:
     GrammarAnalyzer(const GrammarAnalyzer&)=delete;
     GrammarAnalyzer& operator=(const GrammarAnalyzer&) const = delete;
@@ -91,9 +65,6 @@ private:
             if(ident)   return ident;
             table = table->GetPreTable();
         }
-        // for(int i = level; i >= 0; --i) {
-        //     if(table[i].count(name))    return &table[i][name];
-        // }
         return nullptr;
     }
 };

@@ -50,7 +50,7 @@ public:
     IdTable* GetPreTable();
     std::map<std::string, Identifier*>* GetIdentifierTable();
 
-    void print();
+    void ListTable();
 private:
     IdTable* preTable;
     std::map<std::string, Identifier*> table;

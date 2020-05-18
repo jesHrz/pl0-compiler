@@ -8,7 +8,9 @@ LexAnalyzer* lex;
 
 #ifdef GRAMMAR
 #include "grammar/grammar.h"
+#include "grammar/pcode.h"
 GrammarAnalyzer* gram;
+CodeTable* pcodes;
 #endif
 
 #define PRINT_GRAMMAR_TREE 1
@@ -22,6 +24,7 @@ void Halt(int code=0) {
 
     #ifdef GRAMMAR
     delete gram;
+    delete pcodes;
     #endif
 
     if(fin.is_open())   fin.close();
@@ -44,9 +47,11 @@ int main(int argc, char *argv[]) {
     #endif
 
     #ifdef GRAMMAR
-    gram = new GrammarAnalyzer(lex);
+    pcodes = new CodeTable;
+    gram = new GrammarAnalyzer(lex, pcodes);
     gram->Program();
-    gram->print();
+    gram->ListTable();
+    pcodes->ListCode();
     #endif
     Halt(0);
 }
