@@ -4,20 +4,23 @@
 
 #include <map>
 #include <string>
-#include "lex.h"
-#include "symbol.h"
-#include "idtable.h"
-#include "pcode.h"
+
+#include "lex/lex.h"
+#include "symbol/symbol.h"
+#include "grammar/idtable.h"
+#include "grammar/pcode.h"
 
 
 #define RECURSION_DEPTH 3
 
 class GrammarAnalyzer {
 public:
-    GrammarAnalyzer(LexAnalyzer* lex, CodeTable* pcodes);
+    GrammarAnalyzer(LexAnalyzer *lex, CodeTable *pcodes);
+
     ~GrammarAnalyzer();
 
     void Getsym();
+
     void Retract();
 
     void Program();     // 程序
@@ -42,27 +45,30 @@ public:
     void Term();        // 项
     void Factor();      // 因子
 
-    void ListTable() const { mainTable->ListTable(); };
+    void ListTable() const;
 
 protected:
-    LexAnalyzer* lex;
-    Symbol *sym;
-    CodeTable* pcodes;
-    
-    int level;
-    int* addr;
+    LexAnalyzer *lex;
+    Symbol *sym{};
+    CodeTable *pcodes;
 
-    IdTable* mainTable;
-    IdTable* curTable;
+    int level{};
+    int *addr{};
+
+    IdTable *mainTable{};
+    IdTable *curTable{};
+
+public:
+    GrammarAnalyzer(const GrammarAnalyzer &) = delete;
+
+    GrammarAnalyzer &operator=(const GrammarAnalyzer &) const = delete;
+
 private:
-    GrammarAnalyzer(const GrammarAnalyzer&)=delete;
-    GrammarAnalyzer& operator=(const GrammarAnalyzer&) const = delete;
-
-    Identifier* FindIdentifier(std::string name) {
-        IdTable* table = this->curTable;
-        while(table) {
-            Identifier* ident = table->GetIdentifier(name);
-            if(ident)   return ident;
+    Identifier *FindIdentifier(const std::string &name) {
+        IdTable *table = this->curTable;
+        while (table) {
+            Identifier *ident = table->GetIdentifier(name);
+            if (ident) return ident;
             table = table->GetPreTable();
         }
         return nullptr;

@@ -1,13 +1,13 @@
-#include "number.h"
+#include "symbol/number.h"
 
 #include <iomanip>
 #include <sstream>
 
 extern void Halt(int code);
 
-Sym_Number::Sym_Number(int line, int offset, std::string val): Symbol(SYM_NUMBER, line, offset, val) {
-    if(val.length() >= MAX_NUMBER_POW) {
-        std::cerr << _symbolName[SYM_NUMBER]
+Sym_Number::Sym_Number(int line, int offset, const std::string &val) : Symbol(SYM_NUMBER, line, offset, val) {
+    if (val.length() >= MAX_NUMBER_POW) {
+        std::cerr << symbolName[SYM_NUMBER]
                   << ":"
                   << line
                   << ":"
@@ -20,13 +20,13 @@ Sym_Number::Sym_Number(int line, int offset, std::string val): Symbol(SYM_NUMBER
     tmp >> this->number;
 }
 
-Sym_Number::~Sym_Number() {}
+Sym_Number::~Sym_Number() = default;
 
-void Sym_Number::Print(std::ostream& out) const {
+void Sym_Number::Print(std::ostream &out) const {
     out.setf(std::ios::right);
     out << std::setw(10) << this->number
         << "\t["
-        << _symbolName[this->symbolTag]
+        << symbolName[this->symbolTag]
         << ":"
         << this->line
         << ":"

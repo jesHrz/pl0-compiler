@@ -4,27 +4,32 @@
 #include <iostream>
 #include <list>
 
-#include "symbol.h"
+#include "symbol/symbol.h"
 
 class LexAnalyzer {
 public:
-    LexAnalyzer(std::istream& file=std::cin): in(file), line(1), offset(0) {};
-    ~LexAnalyzer() {};
+    explicit LexAnalyzer(std::istream &file = std::cin) : in(file), line(1), offset(0) {};
 
     void Symbolize();
-    int AppendSymbol(Symbol* sym);
-    int PrependSymbol(Symbol* sym);
-    Symbol* GetSymbol();
-    void ListSymbols(std::ostream& out=std::cout);
+
+    int AppendSymbol(Symbol *sym);
+
+    int PrependSymbol(Symbol *sym);
+
+    Symbol *GetSymbol();
+
+    void ListSymbols(std::ostream &out = std::cout);
 
 protected:
-    std::istream& in;
-    std::list<Symbol*> list;
+    std::istream &in;
+    std::list<Symbol *> list;
     int line;
     int offset;
 
     void NextLine();
+
     void PutBack(char c);
+
     char NextChar();
 };
 

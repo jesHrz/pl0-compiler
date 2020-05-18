@@ -2,56 +2,58 @@
 #include <iostream>
 
 #ifdef LEX
+
 #include "lex/lex.h"
-LexAnalyzer* lex;
+
+LexAnalyzer *lex;
 #endif
 
 #ifdef GRAMMAR
+
 #include "grammar/grammar.h"
 #include "grammar/pcode.h"
-GrammarAnalyzer* gram;
-CodeTable* pcodes;
-#endif
 
-#define PRINT_GRAMMAR_TREE 1
+GrammarAnalyzer *gram;
+CodeTable *pcodes;
+#endif
 
 std::ifstream fin;
 
-void Halt(int code=0) {
-    #ifdef LEX
+void Halt(int exitCode = 0) {
+#ifdef LEX
     delete lex;
-    #endif
+#endif
 
-    #ifdef GRAMMAR
+#ifdef GRAMMAR
     delete gram;
     delete pcodes;
-    #endif
+#endif
 
-    if(fin.is_open())   fin.close();
-    std::cerr << "pl0: exit with code " << code << std::endl;
-    exit(code);
+    if (fin.is_open()) fin.close();
+    if (exitCode)
+        std::cerr << "pl0: exit with code " << exitCode << std::endl;
+    else
+        std::cout << "pl0: exit with code 0" << std::endl;
+    exit(exitCode);
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 2) {
+    if (argc < 2) {
         std::cerr << "Usage: pl0 <src>" << std::endl;
         return 0;
     }
     fin.open(argv[1]);
-    // fin.open("/Users/jeshrz/Projects/pl0-compiler/test/code0.pl0");
-    
-    #ifdef LEX
+
+#ifdef LEX
     lex = new LexAnalyzer(fin);
     lex->Symbolize();
-    // lex->ListSymbols();
-    #endif
+#endif
 
-    #ifdef GRAMMAR
+#ifdef GRAMMAR
     pcodes = new CodeTable;
     gram = new GrammarAnalyzer(lex, pcodes);
     gram->Program();
-    gram->ListTable();
-    pcodes->ListCode();
-    #endif
+    pcodes->ListCodes();
+#endif
     Halt(0);
 }

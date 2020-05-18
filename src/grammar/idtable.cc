@@ -1,15 +1,15 @@
-#include "idtable.h"
+#include "grammar/idtable.h"
 
 IdTable::IdTable(): preTable(nullptr) {}
 
-bool IdTable::SetIdentifier(std::string name, Identifier* ident) {
-    if(table.count(name))   return false;
+bool IdTable::SetIdentifier(const std::string &name, Identifier *ident) {
+    if (table.count(name)) return false;
     table[name] = ident;
     return true;
 }
 
-Identifier* IdTable::GetIdentifier(std::string name) {
-    if(table.count(name))   return table[name];
+Identifier *IdTable::GetIdentifier(const std::string &name) {
+    if (table.count(name)) return table[name];
     return nullptr;
 }
 
@@ -27,12 +27,12 @@ void IdTable::ListTable() {
 }
 
 void IdTable::print(IdTable* table, int dep) {
-    if(table == nullptr)    return;
-    for(auto it:table->table) {
-        for(int i = 0; i < dep; ++i)    std::cout << "  ";
+    if (table == nullptr) return;
+    for (const auto &it:table->table) {
+        for (int i = 0; i < dep; ++i) std::cout << "  ";
         std::cout << it.first << ' ';
         it.second->print();
-        if(it.second->kind == PROC) {
+        if (it.second->kind == PROC) {
             IdTable::print(it.second->link, dep + 1);
         }
     }
