@@ -58,6 +58,20 @@ public:
     int GetA() const { return a; }
 
     void BackPatch(int addr) { this->a = addr; };
+
+    void Print(std::ostream &out = std::cout) const {
+        out << "("
+            << F_NAME[f] << ", "
+            << l << ", "
+            << a;
+        if (f == OPR) {
+            out << "["
+                << OPR_NAME[a]
+                << "]";
+        }
+        out << ")" << std::endl;
+    }
+
 private:
     int f, l, a;
 };
@@ -87,15 +101,8 @@ public:
 
     void ListCodes(std::ostream &out = std::cout) const {
         for (int i = 0; i < size(); ++i) {
-            pcode *tmp = this->at(i);
-            out << std::setw(5) << i << "\t("
-                << F_NAME[tmp->GetF()] << ", "
-                << tmp->GetL() << ", "
-                << tmp->GetA();
-            if (tmp->GetF() == OPR) {
-                out << "[" << OPR_NAME[tmp->GetA()] << "]";
-            }
-            out << ")" << std::endl;
+            out << std::setw(4) << i << std::setw(4);
+            this->at(i)->Print(out);
         }
     };
 };

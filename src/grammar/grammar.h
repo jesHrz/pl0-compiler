@@ -45,7 +45,7 @@ public:
     void Term();        // 项
     void Factor();      // 因子
 
-    void ListTable() const;
+    void ListIdTable() const;
 
 protected:
     LexAnalyzer *lex;

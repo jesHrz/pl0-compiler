@@ -71,7 +71,8 @@ int main(int argc, char *argv[]) {
     pcodes = new CodeTable;
     gram = new GrammarAnalyzer(lex, pcodes);
     gram->Program();
-//    pcodes->ListCodes();
+    gram->ListIdTable();
+    pcodes->ListCodes();
 #ifdef VM
     vm = new VirtualMachine(pcodes);
     vm->run();

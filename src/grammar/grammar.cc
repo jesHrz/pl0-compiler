@@ -753,6 +753,4 @@ void GrammarAnalyzer::Write() {
     }
 }
 
-void GrammarAnalyzer::ListTable() const {
-    mainTable->ListTable();
-}
+void GrammarAnalyzer::ListIdTable() const { mainTable->ListIdTable(); }

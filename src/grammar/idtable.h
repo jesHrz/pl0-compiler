@@ -13,6 +13,10 @@ enum KIND {
     PROC,
 };
 
+static std::string KIND_NAME[] = {
+        "NIL", "CONST", "VAR", "PROC"
+};
+
 class IdTable;
 
 class Identifier {
@@ -37,8 +41,13 @@ public:
 
     IdTable *link;
 
-    void print() const {
-        std::cout << std::setw(3) << kind << ' ' << level << ' ' << addr << ' ' << value << ' ' << link << std::endl;
+    void Print(std::ostream &out = std::cout) const {
+        out << std::setw(12) << KIND_NAME[kind]
+            << std::setw(12) << level
+            << std::setw(12) << addr
+            << std::setw(12) << value
+            << std::setw(20) << link
+            << std::endl;
     }
 };
 
@@ -56,13 +65,11 @@ public:
 
     std::map<std::string, Identifier *> *GetIdentifierTable();
 
-    void ListTable();
+    void ListIdTable(std::ostream &out = std::cout);
 
 private:
     IdTable *preTable;
     std::map<std::string, Identifier *> table;
-
-    static void print(IdTable *, int dep);
 
 public:
     IdTable(const IdTable &) = delete;
