@@ -23,7 +23,7 @@ In the build directory, you can run compiler with following command.
 ./pl0 <src>
 ```
 
-There are some source codes for testing the directory `./test`.
+There are some source codes for testing in directory `./test`.
 
 ## LICENSE
 
