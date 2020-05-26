@@ -7,8 +7,8 @@ There is also an Interpreter to run your source code.
 ## Install
 
 ```shell
-mkdir build
-cd build
+git clone https://github.com/jesHrz/pl0-compiler.git && cd pl0-compiler
+mkdir build && cd build
 cmake ..
 make
 ```
@@ -27,4 +27,4 @@ There are some source codes for testing the directory `./test`.
 
 ## LICENSE
 
-[The Star And Thank Author License (SATA)](https://github.com/jesHrz/pl0-compiler/blob/master/LICENSE)
+[The Star And Thank Author License](https://github.com/jesHrz/pl0-compiler/blob/master/LICENSE)
