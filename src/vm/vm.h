@@ -5,7 +5,7 @@
 
 
 #define STACK_SIZE 1024
-#define STACK_TYPE int
+#define STACK_TYPE unsigned int
 
 class VirtualMachine {
 public:
@@ -21,6 +21,8 @@ private:
     CodeTable *pcodes;
 
     void exception(pcode *ir = nullptr);
+
+    void CheckStackOverflow() const;
 };
 
 #endif /* __VM_H_ */

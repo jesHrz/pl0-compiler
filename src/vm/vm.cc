@@ -116,6 +116,7 @@ void VirtualMachine::run() {
         default:
             exception();
         }
+        CheckStackOverflow();
     }
 }
 
@@ -143,3 +144,9 @@ void VirtualMachine::exception(pcode *ir) {
     }
 }
 
+void VirtualMachine::CheckStackOverflow() const {
+    if (sp >= STACK_SIZE) {
+        perror("RuntimeError: stack overflow!");
+        Halt(-1);
+    }
+}
