@@ -13,7 +13,7 @@ VirtualMachine::~VirtualMachine() {
 
 void VirtualMachine::run() {
     auto base = [&](int l) -> int {
-        int b = bp;
+        size_t b = bp;
         for (; l > 0; --l) b = stack[b];
         return b;
     };

@@ -157,7 +157,7 @@ void GrammarAnalyzer::ConstDecl() {
             _recur("Symbol [%s]", sym->GetSymbolValue().c_str());
             _back(1);
         }
-        auto *ident = new Identifier(CONST, -1, -1, sym->GetNumber());
+        auto *ident = new Identifier(CONST, 0, 0, sym->GetNumber());
         if (!curTable->SetIdentifier(constName, ident)) {
             delete ident;
             Error(sym, "redefined identifier");

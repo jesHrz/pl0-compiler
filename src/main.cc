@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
 #ifdef LEX
     lex = new LexAnalyzer(fin);
     lex->Symbolize();
-//    lex->ListSymbols();
+    lex->ListSymbols();
 #endif
 
 #ifdef GRAMMAR

@@ -21,7 +21,7 @@ class IdTable;
 
 class Identifier {
 public:
-    explicit Identifier(enum KIND kind = NIL, int level = -1, int addr = -1, num_t value = 0, IdTable *link = nullptr)
+    explicit Identifier(enum KIND kind = NIL, int level = 0, int addr = 0, num_t value = 0, IdTable *link = nullptr)
             : kind(kind), level(level), addr(addr), value(value), link(link) {}
 
     Identifier &operator=(const Identifier &t) {
